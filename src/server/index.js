@@ -1,21 +1,48 @@
 'use strict';
 
-import 'dotenv/config';
-import express from 'express';
-import cors from 'cors';
+require('dotenv').config();
+
+const WebSocket = require('ws');
+const roomsController = require('./controllers/rooms.controller.js');
 
 const PORT = process.env.PORT || 3001;
 
-const app = express();
+const wss = new WebSocket.Server({ port: PORT });
 
-app.use(cors());
-app.use(express.json());
+wss.on('connection', (ws) => {
+  ws.on('message', (message) => {
+    let data;
 
-app.get('/', (req, res) => {
-  res.send('OK');
-});
+    try {
+      data = JSON.parse(message);
+    } catch (error) {
+      ws.send(
+        JSON.stringify({ type: 'error', message: 'Invalid JSON format' }),
+      );
+    }
 
-app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log(`Server is running on port:${PORT}`);
+    switch (data.type) {
+      case 'create':
+        roomsController.create(ws, data);
+        break;
+      case 'join':
+        roomsController.join(ws, data);
+        break;
+      case 'message':
+        roomsController.sendMessage(ws, data);
+        break;
+      case 'rename':
+        roomsController.rename(ws, data);
+        break;
+      case 'remove':
+        roomsController.remove(ws, data);
+        break;
+      default:
+        ws.send(JSON.stringify({ type: 'error', message: 'Unexpected type' }));
+    }
+  });
+
+  ws.on('close', () => {
+    roomsController.onUserDisconnect(ws);
+  });
 });

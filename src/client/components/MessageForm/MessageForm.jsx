@@ -1,10 +1,13 @@
 import { useForm } from 'react-hook-form';
 import styles from './message-form.module.css';
 
-export const MessageForm = () => {
-  const { handleSubmit, register } = useForm();
+export const MessageForm = ({ send }) => {
+  const { handleSubmit, register, reset } = useForm();
 
-  const onSubmit = (data) => {};
+  const onSubmit = (data) => {
+    send(data);
+    reset();
+  };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className={styles['message-form']}>

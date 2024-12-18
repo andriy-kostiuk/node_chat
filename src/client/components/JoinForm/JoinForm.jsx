@@ -1,11 +1,12 @@
 import { useForm } from 'react-hook-form';
 import styles from './join-form.module.css';
 
-export const JoinForm = () => {
+export const JoinForm = ({ connect }) => {
   const { handleSubmit, register } = useForm();
 
   const onSubmit = (data) => {
     localStorage.setItem('username', data.username);
+    connect(data);
   };
 
   const savedUsername = localStorage.getItem('username') || '';
@@ -24,12 +25,12 @@ export const JoinForm = () => {
         />
       </div>
       <div className={styles['join-form__field-wrapper']}>
-        <label htmlFor="room_name">Room name:</label>
+        <label htmlFor="room">Room name:</label>
         <input
           type="text"
-          id="room_name"
+          id="room"
           placeholder="Enter room name"
-          {...register('room_name', { required: true, minLength: 2 })}
+          {...register('room', { required: true, minLength: 2 })}
           className={styles['join-form__field']}
         />
       </div>
@@ -42,7 +43,7 @@ export const JoinForm = () => {
               id="create"
               value="create"
               defaultChecked
-              {...register('action', { required: true })}
+              {...register('type', { required: true })}
               className={`visually-hidden ${styles['join-form__radio']}`}
             />
             <label
@@ -57,7 +58,7 @@ export const JoinForm = () => {
               type="radio"
               id="join"
               value="join"
-              {...register('action', { required: true })}
+              {...register('type', { required: true })}
               className={`visually-hidden ${styles['join-form__radio']}`}
             />
             <label htmlFor="join" className={styles['join-form__action-label']}>
